@@ -4,6 +4,7 @@ class Database
 {
     private $prefix;
     private $dbh;
+    /** @var $stmt PDOStatement */
     private $stmt;
 
     public function __construct($host, $port, $dbname, $user, $password, $prefix, $charset = 'utf8')

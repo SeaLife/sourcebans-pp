@@ -34,4 +34,4 @@ session_start();
 include_once(INCLUDES_PATH . "/page-builder.php");
 
 $route = route(Config::get('config.defaultpage'));
-build($route[0], $route[1]);
+build($route[0], $route[1], @$route[2]);

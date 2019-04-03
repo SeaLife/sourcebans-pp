@@ -26,7 +26,8 @@ $RECYCLE.BIN/
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -44,6 +45,10 @@ Temporary Items
 
 # Netbeans
 /nbproject/
+
+# IntelliJ
+.idea/
+*.iml
 
 # SourceBans++
 /web/config.php

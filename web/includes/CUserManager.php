@@ -1,45 +1,44 @@
 <?php
 /*************************************************************************
-	This file is part of SourceBans++
+ * This file is part of SourceBans++
+ *
+ * Copyright © 2014-2016 SourceBans++ Dev Team <https://github.com/sbpp>
+ *
+ * SourceBans++ is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+ *
+ * You should have received a copy of the license along with this
+ * work.  If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * This program is based off work covered by the following copyright(s):
+ * SourceBans 1.4.11
+ * Copyright © 2007-2014 SourceBans Team - Part of GameConnect
+ * Licensed under CC BY-NC-SA 3.0
+ * Page: <http://www.sourcebans.net/> - <http://www.gameconnect.net/>
+ *************************************************************************/
 
-	Copyright © 2014-2016 SourceBans++ Dev Team <https://github.com/sbpp>
-
-	SourceBans++ is licensed under a
-	Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-	You should have received a copy of the license along with this
-	work.  If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-	THE SOFTWARE.
-
-	This program is based off work covered by the following copyright(s):
-		SourceBans 1.4.11
-		Copyright © 2007-2014 SourceBans Team - Part of GameConnect
-		Licensed under CC BY-NC-SA 3.0
-		Page: <http://www.sourcebans.net/> - <http://www.gameconnect.net/>
-*************************************************************************/
-
-class CUserManager
-{
-    private $aid = -1;
+class CUserManager {
+    private $aid    = -1;
     private $admins = array();
-    private $dbh = null;
+    private $dbh    = NULL;
 
     /**
      * Class constructor
      *
-     * @param $aid the current user's aid
+     * @param $aid      the current user's aid
      * @param $password the current user's password
+     *
      * @return noreturn.
      */
-    public function __construct($token)
-    {
+    public function __construct ($token) {
         $this->dbh = new Database(DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS, DB_PREFIX, DB_CHARSET);
 
         $this->aid = ((bool)$token) ? $token->getClaim('aid') : -1;
@@ -53,16 +52,16 @@ class CUserManager
      * the admin array 'cache', and then returns the array
      *
      * @param $aid the ID of admin to get info for.
+     *
      * @return array.
      */
-    public function GetUserArray($aid = null)
-    {
+    public function GetUserArray ($aid = NULL) {
         if (is_null($aid)) {
             $aid = $this->aid;
         }
         // Invalid aid
         if ($aid < 0 || empty($aid)) {
-            return false;
+            return FALSE;
         }
 
         // We already got the data from the DB, and its saved in the manager
@@ -81,18 +80,18 @@ class CUserManager
         $res = $this->dbh->single();
 
         if (!$res) {
-            return false;  // ohnoes some type of db error
+            return FALSE;  // ohnoes some type of db error
         }
 
         $user = array();
         //$user['user'] = stripslashes($res[0]);
-        $user['aid'] = $aid; //immediately obvious
-        $user['user'] = $res['user'];
-        $user['authid'] = $res['authid'];
-        $user['password'] = $res['password'];
-        $user['gid'] = $res['gid'];
-        $user['email'] = $res['email'];
-        $user['validate'] = $res['validate'];
+        $user['aid']        = $aid; //immediately obvious
+        $user['user']       = $res['user'];
+        $user['authid']     = $res['authid'];
+        $user['password']   = $res['password'];
+        $user['gid']        = $res['gid'];
+        $user['email']      = $res['email'];
+        $user['validate']   = $res['validate'];
         $user['extraflags'] = (intval($res['extraflags']) | intval($res['wgflags']));
 
         $user['srv_immunity'] = intval($res['sgimmunity']);
@@ -102,11 +101,11 @@ class CUserManager
         }
 
         $user['srv_password'] = $res['srv_password'];
-        $user['srv_groups'] = $res['srv_group'];
-        $user['srv_flags'] = $res['srv_flags'] . $res['sgflags'];
-        $user['group_name'] = $res['wgname'];
-        $user['lastvisit'] = $res['lastvisit'];
-        $this->admins[$aid] = $user;
+        $user['srv_groups']   = $res['srv_group'];
+        $user['srv_flags']    = $res['srv_flags'] . $res['sgflags'];
+        $user['group_name']   = $res['wgname'];
+        $user['lastvisit']    = $res['lastvisit'];
+        $this->admins[$aid]   = $user;
         return $user;
     }
 
@@ -115,17 +114,17 @@ class CUserManager
      * Will check to see if an admin has any of the flags given
      *
      * @param $flags The flags to check for.
-     * @param $aid The user to check flags for.
+     * @param $aid   The user to check flags for.
+     *
      * @return boolean.
      */
-    public function HasAccess($flags, $aid = null)
-    {
+    public function HasAccess ($flags, $aid = NULL) {
         if (is_null($aid)) {
             $aid = $this->aid;
         }
 
         if (empty($flags) || $aid <= 0) {
-            return false;
+            return FALSE;
         }
 
         if (!isset($this->admins[$aid])) {
@@ -133,13 +132,13 @@ class CUserManager
         }
 
         if (is_numeric($flags)) {
-            return ($this->admins[$aid]['extraflags'] & $flags) != 0 ? true : false;
+            return ($this->admins[$aid]['extraflags'] & $flags) != 0 ? TRUE : FALSE;
         }
 
-        for ($i=0; $i < strlen($this->admins[$aid]['srv_flags']); $i++) {
-            for ($a=0; $a < strlen($flags); $a++) {
+        for ($i = 0; $i < strlen($this->admins[$aid]['srv_flags']); $i++) {
+            for ($a = 0; $a < strlen($flags); $a++) {
                 if (strstr($this->admins[$aid]['srv_flags'][$i], $flags[$a])) {
-                    return true;
+                    return TRUE;
                 }
             }
         }
@@ -150,15 +149,15 @@ class CUserManager
      * Gets a 'property' from the user array eg. 'authid'
      *
      * @param $aid the ID of admin to get info for.
+     *
      * @return mixed.
      */
-    public function GetProperty($name, $aid = null)
-    {
+    public function GetProperty ($name, $aid = NULL) {
         if (is_null($aid)) {
             $aid = $this->aid;
         }
         if (empty($name) || $aid < 0) {
-            return false;
+            return FALSE;
         }
 
         if (!isset($this->admins[$aid])) {
@@ -168,35 +167,31 @@ class CUserManager
         return $this->admins[$aid][$name];
     }
 
-    public function is_logged_in()
-    {
+    public function is_logged_in () {
         if ($this->aid != -1) {
-            return true;
+            return TRUE;
         }
-        return false;
+        return FALSE;
     }
 
-    public function is_admin($aid = null)
-    {
+    public function is_admin ($aid = NULL) {
         if (is_null($aid)) {
             $aid = $this->aid;
         }
 
         if ($this->HasAccess(ALL_WEB, $aid)) {
-            return true;
+            return TRUE;
         }
-        return false;
+        return FALSE;
     }
 
 
-    public function GetAid()
-    {
+    public function GetAid () {
         return $this->aid;
     }
 
 
-    public function GetAllAdmins()
-    {
+    public function GetAllAdmins () {
         $this->dbh->query('SELECT aid FROM `:prefix_admins`');
         $res = $this->dbh->resultset();
         foreach ($res as $admin) {
@@ -206,13 +201,12 @@ class CUserManager
     }
 
 
-    public function GetAdmin($aid = null)
-    {
+    public function GetAdmin ($aid = NULL) {
         if (is_null($aid)) {
             $aid = $this->aid;
         }
         if ($aid < 0 || !is_int($aid)) {
-            return false;
+            return FALSE;
         }
 
         if (!isset($this->admins[$aid])) {
@@ -221,8 +215,7 @@ class CUserManager
         return $this->admins[$aid];
     }
 
-    public function isNameTaken($name)
-    {
+    public function isNameTaken ($name) {
         $this->dbh->query("SELECT 1 FROM `:prefix_admins` WHERE user = :user");
         $this->dbh->bind(':user', $name);
         $data = $this->dbh->single();
@@ -230,8 +223,7 @@ class CUserManager
         return (bool)$data[1];
     }
 
-    public function isSteamIDTaken($steamid)
-    {
+    public function isSteamIDTaken ($steamid) {
         $this->dbh->query("SELECT 1 FROM `:prefix_admins` WHERE authid = :steamid");
         $this->dbh->bind(':steamid', $steamid);
         $data = $this->dbh->single();
@@ -239,8 +231,7 @@ class CUserManager
         return (bool)$data[1];
     }
 
-    public function isEmailTaken($email)
-    {
+    public function isEmailTaken ($email) {
         $this->dbh->query("SELECT 1 FROM `:prefix_admins` WHERE email = :email");
         $this->dbh->bind(':email', $email);
         $data = $this->dbh->single();
@@ -248,8 +239,7 @@ class CUserManager
         return (bool)$data[1];
     }
 
-    public function AddAdmin($name, $steam, $password, $email, $web_group, $web_flags, $srv_group, $srv_flags, $immunity, $srv_password)
-    {
+    public function AddAdmin ($name, $steam, $password, $email, $web_group, $web_flags, $srv_group, $srv_flags, $immunity, $srv_password) {
         if (!empty($password) && strlen($password) < MIN_PASS_LENGTH) {
             throw new RuntimeException('Password must be at least ' . MIN_PASS_LENGTH . ' characters long.');
         }

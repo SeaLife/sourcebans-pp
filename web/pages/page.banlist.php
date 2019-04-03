@@ -1,29 +1,29 @@
 <?php
 /*************************************************************************
-This file is part of SourceBans++
-
-Copyright � 2014-2016 SourceBans++ Dev Team <https://github.com/sbpp>
-
-SourceBans++ is licensed under a
-Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
-
-You should have received a copy of the license along with this
-work.  If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
-This program is based off work covered by the following copyright(s):
-SourceBans 1.4.11
-Copyright � 2007-2014 SourceBans Team - Part of GameConnect
-Licensed under CC BY-NC-SA 3.0
-Page: <http://www.sourcebans.net/> - <http://www.gameconnect.net/>
-*************************************************************************/
+ * This file is part of SourceBans++
+ *
+ * Copyright � 2014-2016 SourceBans++ Dev Team <https://github.com/sbpp>
+ *
+ * SourceBans++ is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+ *
+ * You should have received a copy of the license along with this
+ * work.  If not, see <http://creativecommons.org/licenses/by-nc-sa/3.0/>.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ *
+ * This program is based off work covered by the following copyright(s):
+ * SourceBans 1.4.11
+ * Copyright � 2007-2014 SourceBans Team - Part of GameConnect
+ * Licensed under CC BY-NC-SA 3.0
+ * Page: <http://www.sourcebans.net/> - <http://www.gameconnect.net/>
+ *************************************************************************/
 
 global $theme;
 if (!defined("IN_SB")) {
@@ -33,14 +33,14 @@ if (!defined("IN_SB")) {
 $BansPerPage = SB_BANS_PER_PAGE;
 $servers     = array();
 global $userbank;
-function setPostKey()
-{
+function setPostKey () {
     if (isset($_SERVER['REMOTE_IP'])) {
         $_SESSION['banlist_postkey'] = md5($_SERVER['REMOTE_IP'] . time() . rand(0, 100000));
     } else {
         $_SESSION['banlist_postkey'] = md5(time() . rand(0, 100000));
     }
 }
+
 if (!isset($_SESSION['banlist_postkey']) || strlen($_SESSION['banlist_postkey']) < 4) {
     setPostKey();
 }
@@ -63,7 +63,7 @@ if (isset($_GET['a']) && $_GET['a'] == "unban" && isset($_GET['id'])) {
         $bids = explode(",", $_GET['id']);
     } else {
         $bids = array(
-            $_GET['id']
+            $_GET['id'],
         );
     }
     $ucount = 0;
@@ -85,7 +85,7 @@ if (isset($_GET['a']) && $_GET['a'] == "unban" && isset($_GET['id'])) {
 										LEFT JOIN " . DB_PREFIX . "_servers s ON s.sid = b.sid
 										LEFT JOIN " . DB_PREFIX . "_mods m ON m.mid = s.modid
 										WHERE b.bid = ? AND (b.length = '0' OR b.ends > UNIX_TIMESTAMP()) AND b.RemoveType IS NULL", array(
-            $bid
+            $bid,
         ));
         if (empty($row) || !$row) {
             $fail++;
@@ -104,18 +104,18 @@ if (isset($_GET['a']) && $_GET['a'] == "unban" && isset($_GET['id'])) {
 										WHERE `bid` = ?;", array(
             $userbank->GetAid(),
             $unbanReason,
-            $bid
+            $bid,
         ));
 
         $protestsunban = $GLOBALS['db']->Execute("UPDATE `" . DB_PREFIX . "_protests` SET archiv = '4' WHERE bid = '" . $bid . "';");
 
         $blocked = $GLOBALS['db']->GetAll("SELECT s.sid, m.steam_universe FROM `" . DB_PREFIX . "_banlog` bl INNER JOIN " . DB_PREFIX . "_servers s ON s.sid = bl.sid INNER JOIN " . DB_PREFIX . "_mods m ON m.mid = s.modid WHERE bl.bid=? AND (UNIX_TIMESTAMP() - bl.time <= 300)", array(
-            $bid
+            $bid,
         ));
         foreach ($blocked as $tempban) {
             SendRconSilent(($row['type'] == 0 ? "removeid STEAM_" . $tempban['steam_universe'] . substr($row['authid'], 7) : "removeip " . $row['ip']), $tempban['sid']);
         }
-        if (((int) $row['now'] - (int) $row['created']) <= 300 && $row['sid'] != "0" && !in_array($row['sid'], $blocked)) {
+        if (((int)$row['now'] - (int)$row['created']) <= 300 && $row['sid'] != "0" && !in_array($row['sid'], $blocked)) {
             SendRconSilent(($row['type'] == 0 ? "removeid STEAM_" . $row['steam_universe'] . substr($row['authid'], 7) : "removeip " . $row['ip']), $row['sid']);
         }
 
@@ -150,7 +150,7 @@ if (isset($_GET['a']) && $_GET['a'] == "unban" && isset($_GET['id'])) {
         $bids = explode(",", $_GET['id']);
     } else {
         $bids = array(
-            $_GET['id']
+            $_GET['id'],
         );
     }
     $dcount = 0;
@@ -158,30 +158,30 @@ if (isset($_GET['a']) && $_GET['a'] == "unban" && isset($_GET['id'])) {
     foreach ($bids as $bid) {
         $bid    = intval($bid);
         $demres = $GLOBALS['db']->Execute("SELECT filename FROM `" . DB_PREFIX . "_demos` WHERE `demid` = ?", array(
-            $bid
+            $bid,
         ));
         @unlink(SB_DEMOS . "/" . $demres->fields["filename"]);
         $blocked = $GLOBALS['db']->GetAll("SELECT s.sid, m.steam_universe FROM `" . DB_PREFIX . "_banlog` bl INNER JOIN " . DB_PREFIX . "_servers s ON s.sid = bl.sid INNER JOIN " . DB_PREFIX . "_mods m ON m.mid = s.modid WHERE bl.bid=? AND (UNIX_TIMESTAMP() - bl.time <= 300)", array(
-            $bid
+            $bid,
         ));
         $steam   = $GLOBALS['db']->GetRow("SELECT b.name, b.authid, b.created, b.sid, b.RemoveType, b.ip, b.type, m.steam_universe, UNIX_TIMESTAMP() AS now
 										FROM " . DB_PREFIX . "_bans b
 										LEFT JOIN " . DB_PREFIX . "_servers s ON s.sid = b.sid
 										LEFT JOIN " . DB_PREFIX . "_mods m ON m.mid = s.modid
 										WHERE b.bid=?", array(
-            $bid
+            $bid,
         ));
         $block   = $GLOBALS['db']->Execute("DELETE FROM `" . DB_PREFIX . "_banlog` WHERE bid = ?", array(
-            $bid
+            $bid,
         ));
         $res     = $GLOBALS['db']->Execute("DELETE FROM `" . DB_PREFIX . "_bans` WHERE `bid` = ?", array(
-            $bid
+            $bid,
         ));
         if (empty($steam['RemoveType'])) {
             foreach ($blocked as $tempban) {
                 SendRconSilent(($steam['type'] == 0 ? "removeid STEAM_" . $tempban['steam_universe'] . substr($steam['authid'], 7) : "removeip " . $steam['ip']), $tempban['sid']);
             }
-            if (((int) $steam['now'] - (int) $steam['created']) <= 300 && $steam['sid'] != "0" && !in_array($steam['sid'], $blocked)) {
+            if (((int)$steam['now'] - (int)$steam['created']) <= 300 && $steam['sid'] != "0" && !in_array($steam['sid'], $blocked)) {
                 SendRconSilent(($steam['type'] == 0 ? "removeid STEAM_" . $steam['steam_universe'] . substr($steam['authid'], 7) : "removeip " . $steam['ip']), $steam['sid']);
             }
         }
@@ -210,7 +210,7 @@ $BansEnd   = intval($BansStart + $BansPerPage);
 
 // hide inactive bans feature
 if (isset($_GET["hideinactive"]) && $_GET["hideinactive"] == "true") { // hide
-    $_SESSION["hideinactive"] = true;
+    $_SESSION["hideinactive"] = TRUE;
     //ShowBox('Hide inactive bans', 'Inactive bans will be hidden from the banlist.', 'green', 'index.php?p=banlist', true);
 } elseif (isset($_GET["hideinactive"]) && $_GET["hideinactive"] == "false") { // show
     unset($_SESSION["hideinactive"]);
@@ -254,14 +254,14 @@ if (isset($_GET['searchText'])) {
         $search,
         $search,
         intval($BansStart),
-        intval($BansPerPage)
+        intval($BansPerPage),
     )));
 
 
     $res_count  = $GLOBALS['db']->Execute("SELECT count(BA.bid) FROM " . DB_PREFIX . "_bans AS BA WHERE " . $search_ips . "BA.authid LIKE ? OR BA.name LIKE ? OR BA.reason LIKE ?" . $hideinactive, array_merge($search_array, array(
         $search,
         $search,
-        $search
+        $search,
     )));
     $searchlink = "&searchText=" . $_GET["searchText"];
 } elseif (!isset($_GET['advSearch'])) {
@@ -278,7 +278,7 @@ if (isset($_GET['searchText'])) {
    ORDER BY created DESC
    LIMIT ?,?", array(
         intval($BansStart),
-        intval($BansPerPage)
+        intval($BansPerPage),
     ));
 
     $res_count  = $GLOBALS['db']->Execute("SELECT count(bid) FROM " . DB_PREFIX . "_bans" . $hideinactiven);
@@ -293,25 +293,25 @@ if (isset($_GET['advSearch'])) {
         case "name":
             $where   = "WHERE BA.name LIKE ?";
             $advcrit = array(
-                "%$value%"
+                "%$value%",
             );
             break;
         case "banid":
             $where   = "WHERE BA.bid = ?";
             $advcrit = array(
-                $value
+                $value,
             );
             break;
         case "steamid":
             $where   = "WHERE BA.authid = ?";
             $advcrit = array(
-                $value
+                $value,
             );
             break;
         case "steam":
             $where   = "WHERE BA.authid LIKE ?";
             $advcrit = array(
-                "%$value%"
+                "%$value%",
             );
             break;
         case "ip":
@@ -322,14 +322,14 @@ if (isset($_GET['advSearch'])) {
             } else {
                 $where   = "WHERE BA.ip LIKE ?";
                 $advcrit = array(
-                    "%$value%"
+                    "%$value%",
                 );
             }
             break;
         case "reason":
             $where   = "WHERE BA.reason LIKE ?";
             $advcrit = array(
-                "%$value%"
+                "%$value%",
             );
             break;
         case "date":
@@ -339,7 +339,7 @@ if (isset($_GET['advSearch'])) {
             $where   = "WHERE BA.created > ? AND BA.created < ?";
             $advcrit = array(
                 $time,
-                $time2
+                $time2,
             );
             break;
         case "length":
@@ -364,15 +364,15 @@ if (isset($_GET['advSearch'])) {
                     $where .= "<=";
                     break;
             }
-            $where .= " ?";
+            $where   .= " ?";
             $advcrit = array(
-                $length
+                $length,
             );
             break;
         case "btype":
             $where   = "WHERE BA.type = ?";
             $advcrit = array(
-                $value
+                $value,
             );
             break;
         case "admin":
@@ -382,33 +382,33 @@ if (isset($_GET['advSearch'])) {
             } else {
                 $where   = "WHERE BA.aid=?";
                 $advcrit = array(
-                    $value
+                    $value,
                 );
             }
             break;
         case "where_banned":
             $where   = "WHERE BA.sid=?";
             $advcrit = array(
-                $value
+                $value,
             );
             break;
         case "nodemo":
             $where   = "WHERE BA.aid = ? AND NOT EXISTS (SELECT DM.demid FROM " . DB_PREFIX . "_demos AS DM WHERE DM.demid = BA.bid)";
             $advcrit = array(
-                $value
+                $value,
             );
             break;
         case "bid":
             $where   = "WHERE BA.bid = ?";
             $advcrit = array(
-                $value
+                $value,
             );
             break;
         case "comment":
             if ($userbank->is_admin()) {
                 $where   = "WHERE CO.type = 'B' AND CO.commenttxt LIKE ?";
                 $advcrit = array(
-                    "%$value%"
+                    "%$value%",
                 );
             } else {
                 $where   = "";
@@ -442,7 +442,7 @@ if (isset($_GET['advSearch'])) {
    ORDER BY BA.created DESC
    LIMIT ?,?", array_merge($advcrit, array(
         intval($BansStart),
-        intval($BansPerPage)
+        intval($BansPerPage),
     )));
 
     $res_count  = $GLOBALS['db']->Execute("SELECT count(BA.bid) FROM " . DB_PREFIX . "_bans AS BA
@@ -459,7 +459,7 @@ if (!$res) {
     PageDie();
 }
 
-$view_comments = false;
+$view_comments = FALSE;
 $bans          = array();
 while (!$res->EOF) {
     $data = array();
@@ -474,7 +474,7 @@ while (!$res->EOF) {
             $edit    = $GLOBALS['db']->Execute("UPDATE " . DB_PREFIX . "_bans SET country = ?
 				                            WHERE bid = ?", array(
                 $country,
-                $res->fields['ban_id']
+                $res->fields['ban_id'],
             ));
 
             $data['country'] = '<img src="images/country/' . strtolower($country) . '.jpg" alt="' . $country . '" border="0" align="absmiddle" />';
@@ -495,7 +495,7 @@ while (!$res->EOF) {
     $data['steamid3']    = '[U:1:' . ($steam3parts[2] * 2 + $steam3parts[1]) . ']';
 
     if (Config::getBool('banlist.hideadminname') && !$userbank->is_admin()) {
-        $data['admin'] = false;
+        $data['admin'] = FALSE;
     } else {
         $data['admin'] = stripslashes($res->fields['admin_name']);
     }
@@ -508,17 +508,17 @@ while (!$res->EOF) {
         $data['expires']   = 'never';
         $data['class']     = "listtable_1_permanent";
         $data['ub_reason'] = "";
-        $data['unbanned']  = false;
+        $data['unbanned']  = FALSE;
     } else {
         $data['expires']   = Config::time($res->fields['ban_ends']);
         $data['class']     = "listtable_1_banned";
         $data['ub_reason'] = "";
-        $data['unbanned']  = false;
+        $data['unbanned']  = FALSE;
     }
     // End custom entries
 
     if ($res->fields['row_type'] == 'D' || $res->fields['row_type'] == 'U' || $res->fields['row_type'] == 'E' || ($res->fields['ban_length'] && $res->fields['ban_ends'] < time())) {
-        $data['unbanned'] = true;
+        $data['unbanned'] = TRUE;
         $data['class']    = "listtable_1_unbanned";
 
         if ($res->fields['row_type'] == "D") {
@@ -555,16 +555,16 @@ while (!$res->EOF) {
     if ($alrdybnd->fields['count'] == 0) {
         $data['reban_link'] = CreateLinkR('<i class="fas fa-redo fa-lg"></i> Reban', "index.php?p=admin&c=bans" . $pagelink . "&rebanid=" . $res->fields['ban_id'] . "&key=" . $_SESSION['banlist_postkey'] . "#^0");
     } else {
-        $data['reban_link'] = false;
+        $data['reban_link'] = FALSE;
     }
     $data['blockcomm_link']  = CreateLinkR('<i class="fas fa-ban fa-lg"></i> Block Comms', "index.php?p=admin&c=comms" . $pagelink . "&blockfromban=" . $res->fields['ban_id'] . "&key=" . $_SESSION['banlist_postkey'] . "#^0");
     $data['details_link']    = CreateLinkR('click', 'getdemo.php?type=B&id=' . $res->fields['ban_id']);
     $data['groups_link']     = CreateLinkR('<i class="fas fa-users fa-lg"></i> Show Groups', "index.php?p=admin&c=bans&fid=" . $data['communityid'] . "#^4");
-    $data['friend_ban_link'] = CreateLinkR('<i class="fas fa-trash fa-lg"></i> Ban Friends', '#', '', '_self', false, "BanFriendsProcess('" . $data['communityid'] . "','" . $data['player'] . "');return false;");
+    $data['friend_ban_link'] = CreateLinkR('<i class="fas fa-trash fa-lg"></i> Ban Friends', '#', '', '_self', FALSE, "BanFriendsProcess('" . $data['communityid'] . "','" . $data['player'] . "');return false;");
     $data['edit_link']       = CreateLinkR('<i class="fas fa-edit fa-lg"></i> Edit Details', "index.php?p=admin&c=bans&o=edit" . $pagelink . "&id=" . $res->fields['ban_id'] . "&key=" . $_SESSION['banlist_postkey']);
 
-    $data['unban_link']  = CreateLinkR('<i class="fas fa-undo fa-lg"></i> Unban', "#", "", "_self", false, "UnbanBan('" . $res->fields['ban_id'] . "', '" . $_SESSION['banlist_postkey'] . "', '" . $pagelink . "', '" . $data['player'] . "', 1, false);return false;");
-    $data['delete_link'] = CreateLinkR('<i class="fas fa-trash fa-lg"></i> Delete Ban', "#", "", "_self", false, "RemoveBan('" . $res->fields['ban_id'] . "', '" . $_SESSION['banlist_postkey'] . "', '" . $pagelink . "', '" . $data['player'] . "', 0, false);return false;");
+    $data['unban_link']  = CreateLinkR('<i class="fas fa-undo fa-lg"></i> Unban', "#", "", "_self", FALSE, "UnbanBan('" . $res->fields['ban_id'] . "', '" . $_SESSION['banlist_postkey'] . "', '" . $pagelink . "', '" . $data['player'] . "', 1, false);return false;");
+    $data['delete_link'] = CreateLinkR('<i class="fas fa-trash fa-lg"></i> Delete Ban', "#", "", "_self", FALSE, "RemoveBan('" . $res->fields['ban_id'] . "', '" . $_SESSION['banlist_postkey'] . "', '" . $pagelink . "', '" . $data['player'] . "', 0, false);return false;");
 
 
     $data['server_id'] = $res->fields['ban_server'];
@@ -584,7 +584,6 @@ while (!$res->EOF) {
     }
 
 
-
     if (strlen($res->fields['ban_ip']) < 7) {
         $data['ip'] = 'none';
     } else {
@@ -599,15 +598,14 @@ while (!$res->EOF) {
 
 
     if ($res->fields['demo_count'] == 0) {
-        $data['demo_available'] = false;
+        $data['demo_available'] = FALSE;
         $data['demo_quick']     = 'N/A';
         $data['demo_link']      = CreateLinkR('<i class="fas fa-video-slash fa-lg"></i> No Demos', "#");
     } else {
-        $data['demo_available'] = true;
+        $data['demo_available'] = TRUE;
         $data['demo_quick']     = CreateLinkR('Demo', "getdemo.php?type=B&id=" . $data['ban_id']);
         $data['demo_link']      = CreateLinkR('<i class="fas fa-video fa-lg"></i> Review Demo', "getdemo.php?type=B&id=" . $data['ban_id']);
     }
-
 
 
     $data['server_id'] = $res->fields['ban_server'];
@@ -626,7 +624,7 @@ while (!$res->EOF) {
     //COMMENT STUFF
     //-----------------------------------
     if ($userbank->is_admin()) {
-        $view_comments = true;
+        $view_comments = TRUE;
         $commentres    = $GLOBALS['db']->Execute("SELECT cid, aid, commenttxt, added, edittime,
 											(SELECT user FROM `" . DB_PREFIX . "_admins` WHERE aid = C.aid) AS comname,
 											(SELECT user FROM `" . DB_PREFIX . "_admins` WHERE aid = C.editaid) AS editname
@@ -638,7 +636,7 @@ while (!$res->EOF) {
             $morecom = 0;
             while (!$commentres->EOF) {
                 $cdata            = array();
-                $cdata['morecom'] = ($morecom == 1 ? true : false);
+                $cdata['morecom'] = ($morecom == 1 ? TRUE : FALSE);
                 if ($commentres->fields['aid'] == $userbank->GetAid() || $userbank->HasAccess(ADMIN_OWNER)) {
                     $cdata['editcomlink'] = CreateLinkR('<i class="fas fa-edit fa-lg"></i>', 'index.php?p=banlist&comment=' . $data['ban_id'] . '&ctype=B&cid=' . $commentres->fields['cid'] . $pagelink, 'Edit Comment');
                     if ($userbank->HasAccess(ADMIN_OWNER)) {
@@ -696,7 +694,7 @@ if (isset($_GET['advSearch'])) {
 
 if ($page > 1) {
     if (isset($_GET['c']) && $_GET['c'] == "bans") {
-        $prev = CreateLinkR('<i class="fas fa-arrow-left fa-lg"></i> prev', "javascript:void(0);", "", "_self", false, $prev);
+        $prev = CreateLinkR('<i class="fas fa-arrow-left fa-lg"></i> prev', "javascript:void(0);", "", "_self", FALSE, $prev);
     } else {
         $prev = CreateLinkR('<i class="fas fa-arrow-left fa-lg"></i> prev', "index.php?p=banlist&page=" . ($page - 1) . (isset($_GET['searchText']) > 0 ? "&searchText=" . $_GET['searchText'] : '' . $advSearchString));
     }
@@ -708,7 +706,7 @@ if ($BansEnd < $BanCount) {
         if (!isset($nxt)) {
             $nxt = "";
         }
-        $next = CreateLinkR('next <i class="fas fa-arrow-right fa-lg"></i>', "javascript:void(0);", "", "_self", false, $nxt);
+        $next = CreateLinkR('next <i class="fas fa-arrow-right fa-lg"></i>', "javascript:void(0);", "", "_self", FALSE, $nxt);
     } else {
         $next = CreateLinkR('next <i class="fas fa-arrow-right fa-lg"></i>', "index.php?p=banlist&page=" . ($page + 1) . (isset($_GET['searchText']) ? "&searchText=" . $_GET['searchText'] : '' . $advSearchString));
     }
@@ -741,10 +739,10 @@ if ($pages > 1) {
 //COMMENT STUFF
 //----------------------------------------
 if (isset($_GET["comment"])) {
-    $_GET["comment"] = (int) $_GET["comment"];
+    $_GET["comment"] = (int)$_GET["comment"];
     $theme->assign('commenttype', (isset($_GET["cid"]) ? "Edit" : "Add"));
     if (isset($_GET["cid"])) {
-        $_GET["cid"]    = (int) $_GET["cid"];
+        $_GET["cid"]    = (int)$_GET["cid"];
         $ceditdata      = $GLOBALS['db']->GetRow("SELECT * FROM " . DB_PREFIX . "_comments WHERE cid = '" . $_GET["cid"] . "'");
         $ctext          = htmlspecialchars($ceditdata['commenttxt']);
         $cotherdataedit = " AND cid != '" . $_GET["cid"] . "'";
@@ -761,7 +759,7 @@ if (isset($_GET["comment"])) {
 											FROM `" . DB_PREFIX . "_comments` AS C
 											WHERE type = ? AND bid = ?" . $cotherdataedit . " ORDER BY added desc", array(
         $_GET["ctype"],
-        $_GET["comment"]
+        $_GET["comment"],
     ));
 
     $ocomments = array();
@@ -791,7 +789,7 @@ if (isset($_GET["comment"])) {
     $theme->assign('cid', (isset($_GET["cid"]) ? $_GET["cid"] : ""));
 }
 $theme->assign('view_comments', $view_comments);
-$theme->assign('comment', (isset($_GET["comment"]) && $view_comments ? $_GET["comment"] : false));
+$theme->assign('comment', (isset($_GET["comment"]) && $view_comments ? $_GET["comment"] : FALSE));
 //----------------------------------------
 
 unset($_SESSION['CountryFetchHndl']);

@@ -1,9 +1,8 @@
 <?php
-function route($fallback)
-{
-    $page = filter_input(INPUT_GET, 'p', FILTER_SANITIZE_STRING);
+function route ($fallback) {
+    $page      = filter_input(INPUT_GET, 'p', FILTER_SANITIZE_STRING);
     $categorie = filter_input(INPUT_GET, 'c', FILTER_SANITIZE_STRING);
-    $option = filter_input(INPUT_GET, 'o', FILTER_SANITIZE_STRING);
+    $option    = filter_input(INPUT_GET, 'o', FILTER_SANITIZE_STRING);
 
     switch ($page) {
         case 'login':
@@ -15,6 +14,8 @@ function route($fallback)
                 default:
                     return ['Login', '/page.login.php'];
             }
+        case 'api':
+            return ['API Endpoint', '/page.api.php', FALSE];
         case 'logout':
             Auth::logout();
             header('Location: index.php?p=home');
@@ -38,7 +39,7 @@ function route($fallback)
         case 'admin':
             switch ($categorie) {
                 case 'groups':
-                    CheckAdminAccess(ADMIN_OWNER|ADMIN_LIST_GROUPS|ADMIN_ADD_GROUP|ADMIN_EDIT_GROUPS|ADMIN_DELETE_GROUPS);
+                    CheckAdminAccess(ADMIN_OWNER | ADMIN_LIST_GROUPS | ADMIN_ADD_GROUP | ADMIN_EDIT_GROUPS | ADMIN_DELETE_GROUPS);
                     switch ($option) {
                         case 'edit':
                             return ['Edit Groups', '/admin.edit.group.php'];
@@ -46,7 +47,7 @@ function route($fallback)
                             return ['Group Management', '/admin.groups.php'];
                     }
                 case 'admins':
-                    CheckAdminAccess(ADMIN_OWNER|ADMIN_LIST_ADMINS|ADMIN_ADD_ADMINS|ADMIN_EDIT_ADMINS|ADMIN_DELETE_ADMINS);
+                    CheckAdminAccess(ADMIN_OWNER | ADMIN_LIST_ADMINS | ADMIN_ADD_ADMINS | ADMIN_EDIT_ADMINS | ADMIN_DELETE_ADMINS);
                     switch ($option) {
                         case 'editgroup':
                             return ['Edit Admin Groups', '/admin.edit.admingroup.php'];
@@ -60,7 +61,7 @@ function route($fallback)
                             return ['Admin Management', '/admin.admins.php'];
                     }
                 case 'servers':
-                    CheckAdminAccess(ADMIN_OWNER|ADMIN_LIST_SERVERS|ADMIN_ADD_SERVER|ADMIN_EDIT_SERVERS|ADMIN_DELETE_SERVERS);
+                    CheckAdminAccess(ADMIN_OWNER | ADMIN_LIST_SERVERS | ADMIN_ADD_SERVER | ADMIN_EDIT_SERVERS | ADMIN_DELETE_SERVERS);
                     switch ($option) {
                         case 'edit':
                             return ['Edit Server', '/admin.edit.server.php'];
@@ -72,7 +73,7 @@ function route($fallback)
                             return ['Server Management', '/admin.servers.php'];
                     }
                 case 'bans':
-                    CheckAdminAccess(ADMIN_OWNER|ADMIN_ADD_BAN|ADMIN_EDIT_OWN_BANS|ADMIN_EDIT_GROUP_BANS|ADMIN_EDIT_ALL_BANS|ADMIN_BAN_PROTESTS|ADMIN_BAN_SUBMISSIONS);
+                    CheckAdminAccess(ADMIN_OWNER | ADMIN_ADD_BAN | ADMIN_EDIT_OWN_BANS | ADMIN_EDIT_GROUP_BANS | ADMIN_EDIT_ALL_BANS | ADMIN_BAN_PROTESTS | ADMIN_BAN_SUBMISSIONS);
                     switch ($option) {
                         case 'edit':
                             return ['Edit Ban Details', '/admin.edit.ban.php'];
@@ -82,7 +83,7 @@ function route($fallback)
                             return ['Bans', '/admin.bans.php'];
                     }
                 case 'comms':
-                    CheckAdminAccess(ADMIN_OWNER|ADMIN_ADD_BAN|ADMIN_EDIT_OWN_BANS|ADMIN_EDIT_ALL_BANS);
+                    CheckAdminAccess(ADMIN_OWNER | ADMIN_ADD_BAN | ADMIN_EDIT_OWN_BANS | ADMIN_EDIT_ALL_BANS);
                     switch ($option) {
                         case 'edit':
                             return ['Edit Block Details', '/admin.edit.comms.php'];
@@ -90,7 +91,7 @@ function route($fallback)
                             return ['Comms', '/admin.comms.php'];
                     }
                 case 'mods':
-                    CheckAdminAccess(ADMIN_OWNER|ADMIN_LIST_MODS|ADMIN_ADD_MODS|ADMIN_EDIT_MODS|ADMIN_DELETE_MODS);
+                    CheckAdminAccess(ADMIN_OWNER | ADMIN_LIST_MODS | ADMIN_ADD_MODS | ADMIN_EDIT_MODS | ADMIN_DELETE_MODS);
                     switch ($option) {
                         case 'edit':
                             return ['Edit Mod Details', '/admin.edit.mod.php'];
@@ -98,12 +99,12 @@ function route($fallback)
                             return ['Manage Mods', '/admin.mods.php'];
                     }
                 case 'settings':
-                    CheckAdminAccess(ADMIN_OWNER|ADMIN_WEB_SETTINGS);
+                    CheckAdminAccess(ADMIN_OWNER | ADMIN_WEB_SETTINGS);
                     return ['SourceBans++ Settings', '/admin.settings.php'];
                 default:
                     CheckAdminAccess(ALL_WEB);
                     return ['Administration', '/page.admin.php'];
-        }
+            }
         default:
             switch ($fallback) {
                 case 1:
@@ -125,11 +126,17 @@ function route($fallback)
     }
 }
 
-function build($title, $page)
-{
-    require_once(TEMPLATES_PATH.'/core/header.php');
-    require_once(TEMPLATES_PATH.'/core/navbar.php');
-    require_once(TEMPLATES_PATH.'/core/title.php');
-    require_once(TEMPLATES_PATH.$page);
-    require_once(TEMPLATES_PATH.'/core/footer.php');
+function build ($title, $page, $tpl = TRUE) {
+    if (is_null($tpl)) $tpl = TRUE;
+
+    if ($tpl) {
+        require_once(TEMPLATES_PATH . '/core/header.php');
+        require_once(TEMPLATES_PATH . '/core/navbar.php');
+        require_once(TEMPLATES_PATH . '/core/title.php');
+    }
+    /** @noinspection PhpIncludeInspection */
+    require_once(TEMPLATES_PATH . $page);
+    if ($tpl) {
+        require_once(TEMPLATES_PATH . '/core/footer.php');
+    }
 }
